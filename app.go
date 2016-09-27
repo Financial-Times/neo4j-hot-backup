@@ -11,6 +11,7 @@ import (
 	"github.com/jawher/mow.cli"
 	"github.com/klauspost/compress/snappy"
 	"github.com/rlmcpherson/s3gof3r"
+	"net/http"
 )
 
 func main() {
@@ -73,7 +74,7 @@ func main() {
 		})
 		cmd.Action = func() {
 			n := newNeoBackup(*s3bucket, *s3dir, *s3domain, *accessKey, *secretKey)
-			if err := n.restoreDirectory(*dateDir, *dir); err != nil {
+			if err := restoreDirectory(n, *dateDir, *dir); err != nil {
 				log.Fatalf("restore failed : %v\n", err)
 			}
 		}
@@ -91,6 +92,10 @@ type neoBackup struct {
 	s3       *s3gof3r.S3
 }
 
+type nb interface {
+	readS3(dateDir string) (string, io.ReadCloser, http.Header, error)
+}
+
 func newNeoBackup(s3bucket, s3dir, s3domain, accessKey, secretKey string) *neoBackup {
 	return &neoBackup{
 		s3bucket,
@@ -105,10 +110,15 @@ func newNeoBackup(s3bucket, s3dir, s3domain, accessKey, secretKey string) *neoBa
 	}
 }
 
-func (n *neoBackup) restoreDirectory(dateDir, dir string) error {
+func (n *neoBackup) readS3(dataDir string) (path string, http io.ReadCloser, headers http.Header, err error) {
+	path = filepath.Join(n.s3dir, dataDir+".tar.snappy")
+	http, headers, err = n.s3.Bucket(n.s3bucket).GetReader(path, nil)
+	return path, http, headers, err
+}
 
-	path := filepath.Join(n.s3dir, dateDir+".tar.snappy")
-	br, _, err := n.s3.Bucket(n.s3bucket).GetReader(path, nil)
+func restoreDirectory(n nb, dateDir, dir string) error {
+
+	path, br, _, err := n.readS3(dateDir)
 	if err != nil {
 		return err
 	}
@@ -116,7 +126,7 @@ func (n *neoBackup) restoreDirectory(dateDir, dir string) error {
 	sr := snappy.NewReader(br)
 	tr := tar.NewReader(sr)
 
-	log.Printf("[INFO] Restoring %s to %s \n", path, dir)
+	log.Printf("[INFO] Restoring '%s' to '%s'\n", path, dir)
 
 	for {
 		header, err := tr.Next()
@@ -142,7 +152,7 @@ func (n *neoBackup) restoreDirectory(dateDir, dir string) error {
 			io.Copy(file, tr)
 		}
 	}
-	log.Printf("[INFO] Restore of %s to %s complete \n", path, dir)
+	log.Printf("[INFO] Restore of '%s' to '%s' complete\n", path, dir)
 	return nil
 }
 
