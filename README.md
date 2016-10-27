@@ -30,6 +30,10 @@ To restore
     -v <backup folder>:/backup \
     coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
 
+- &lt;ENVIRONMENT TAG&gt; = The environment that you'll be restoring the backup from.
+- &lt;backup folder&gt; = The local folder that you'll be restoring to.
+- Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
+
 ### Testing for developers
 When making changes, follow the testing procedure below to ensure that the base functionality still work.
 - Run a Neo4j hot backup to produce a backup folder
