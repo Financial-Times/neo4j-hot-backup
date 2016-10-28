@@ -34,6 +34,10 @@ To restore
 - &lt;backup folder&gt; = The local folder that you'll be restoring to.
 - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
 
+### Restoring in the cluster
+- Make sure that the database has been shut down before moving/restoring the data.
+- When restarting, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+
 ### Testing for developers
 When making changes, follow the testing procedure below to ensure that the base functionality still work.
 - Run a Neo4j hot backup to produce a backup folder
