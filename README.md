@@ -15,7 +15,7 @@ To backup
     docker run --rm \
     --env AWS_ACCESS_KEY_ID=<AWS ACCESS KEY> \
     --env AWS_SECRET_ACCESS_KEY=<AWS SECRET KEY> \
-    --env AWS_BUCKET_NAME=com.ft.coco-neo4j-backup \
+    --env S3_BUCKET=com.ft.coco-neo4j-backup \
     --env S3_DIR=<ENVIRONMENT TAG> \
     -v <backup folder>:/backup \
     coco/neo4j-hot-backup
@@ -25,7 +25,7 @@ To restore
     docker run --rm \
     --env AWS_ACCESS_KEY_ID=<AWS ACCESS KEY> \
     --env AWS_SECRET_ACCESS_KEY=<AWS SECRET KEY> \
-    --env AWS_BUCKET_NAME=com.ft.coco-neo4j-backup \
+    --env S3_BUCKET=com.ft.coco-neo4j-backup \
     --env S3_DIR=<ENVIRONMENT TAG> \
     -v <backup folder>:/backup \
     coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
