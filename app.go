@@ -202,6 +202,7 @@ func (n *neoBackup) backupDirectory(dir string) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("[INFO] Backup of directory %s to %s is complete \n", dir, path)
 	return nil
 }
 
