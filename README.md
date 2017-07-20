@@ -8,35 +8,64 @@ If you wish to build locally:
 - Go app: `go build`
 - Docker build: `docker build -t coco/neo4j-hot-backup .`
 
-### Running
+### Performing a backup
 
-To backup
+- &lt;BACKUP_DIRECTORY&gt;: location to backup to - the standard location is `/vol/neo4j/data/databases/graph.db`
 
-    docker run --rm \
-    --env AWS_ACCESS_KEY_ID=<AWS ACCESS KEY> \
-    --env AWS_SECRET_ACCESS_KEY=<AWS SECRET KEY> \
-    --env S3_BUCKET=com.ft.coco-neo4j-backup \
-    --env S3_DIR=<ENVIRONMENT TAG> \
-    -v <backup folder>:/backup \
-    coco/neo4j-hot-backup
+```
+docker run --rm \
+--env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
+--env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
+--env S3_BUCKET=com.ft.coco-neo4j-backup \
+--env S3_DIR=$(/usr/bin/etcdctl get /ft/config/environment_tag) \
+-v <BACKUP_DIRECTORY>:/backup \
+coco/neo4j-hot-backup
+```
 
-To restore
-
-    docker run --rm \
-    --env AWS_ACCESS_KEY_ID=<AWS ACCESS KEY> \
-    --env AWS_SECRET_ACCESS_KEY=<AWS SECRET KEY> \
-    --env S3_BUCKET=com.ft.coco-neo4j-backup \
-    --env S3_DIR=<ENVIRONMENT TAG> \
-    -v <backup folder>:/backup \
-    coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
-
-- &lt;ENVIRONMENT TAG&gt; = The environment that you'll be restoring the backup from.
-- &lt;backup folder&gt; = The local folder that you'll be restoring to.
-- Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
-
-### Restoring in the cluster
+### Performing a restore
 - Make sure that the database has been shut down before moving/restoring the data.
-- When restarting, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+
+```
+fleetctl stop neo4j@{1..3}.service
+fleetctl stop neo4j-hot-backup@1.timer
+```
+
+- Before starting the restore, either move or delete the existing `/vol/neo4j/data/databases/graph.db` directory.
+    - If you want to move and keep a copy of the current data, check there is sufficient disk space available.
+
+```
+df -h
+sudo mv /vol/neo4j/data/databases/graph.db /vol/neo4j/data/databases/graph.db.`date +%F`
+
+OR
+
+sudo rm -rf /vol/neo4j/data/databases/graph.db
+```
+
+- Start the restore using `neo4j-hot-backup`.
+    - &lt;ENVIRONMENT TAG&gt;: The environment that you'll be restoring the backup from.
+    - &lt;RESTORE_DIRECTORY&gt;: location to restore to - the standard location is `/vol/neo4j/data/databases/graph.db`
+    - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
+
+```
+docker run --rm \g
+--env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
+--env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
+--env S3_BUCKET=com.ft.coco-neo4j-backup \
+--env S3_DIR=<ENVIRONMENT_TAG> \
+-v <RESTORE_DIRECTORY>:/backup \
+coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
+```
+
+- Start neo4j back up:
+
+```
+fleetctl start neo4j@{1..3}.service
+fleetctl start fleetctl stop neo4j-hot-backup@1.timer
+```
+
+- Once started, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+
 
 ### Testing for developers
 When making changes, follow the testing procedure below to ensure that the base functionality still work.
