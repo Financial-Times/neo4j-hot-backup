@@ -20,20 +20,45 @@ If you wish to build locally:
 
 ### Performing a restore
 - Make sure that the database has been shut down before moving/restoring the data.
+
+```
+fleetctl stop neo4j@{1..3}.service
+```
+
 - Before starting the restore, either delete or move the existing `/vol/neo4j/data/databases/graph.db` directory.
-- When restarting, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+- Note that for large databases, there may not be enough disk space to move the existing data and also restore.
 
-    docker run --rm \
-    --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
-    --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
-    --env S3_BUCKET=com.ft.coco-neo4j-backup \
-    --env S3_DIR=<ENVIRONMENT_TAG> \
-    -v /vol/neo4j/data/databases/graph.db:/backup \
-    coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
+```
+sudo mv /vol/neo4j/data/databases/graph.db /vol/neo4j/data/databases/graph.db.`date +%F`
 
+OR
+
+sudo rm -rf /vol/neo4j/data/databases/graph.db
+```
+
+- Start the restore using `neo4j-hot-backup`.
 - &lt;ENVIRONMENT TAG&gt; = The environment that you'll be restoring the backup from.
 - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
 - [Optional] you can change the target restore directory - standard location is `/vol/neo4j/data/databases/graph.db`.
+
+```
+docker run --rm \
+--env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
+--env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
+--env S3_BUCKET=com.ft.coco-neo4j-backup \
+--env S3_DIR=<ENVIRONMENT_TAG> \
+-v /vol/neo4j/data/databases/graph.db:/backup \
+coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
+```
+
+- Start neo4j back up:
+
+```
+fleetctl start neo4j@{1..3}.service
+```
+
+- Once started, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+
 
 ### Testing for developers
 When making changes, follow the testing procedure below to ensure that the base functionality still work.
