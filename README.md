@@ -10,7 +10,7 @@ If you wish to build locally:
 
 ### Performing a backup
 
-- &lt;BACKUP_DIRECTORY&gt;: location to backup to - the standard location is `/vol/neo4j/data/databases/graph.db`
+- &lt;BACKUP_DIRECTORY&gt;: data directory to backup - the standard location is `/vol/neo4j/data/databases/graph.db`
 
 ```
 docker run --rm \
