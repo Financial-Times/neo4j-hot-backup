@@ -61,7 +61,7 @@ coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
 
 ```
 fleetctl start neo4j@{1..3}.service
-fleetctl start fleetctl stop neo4j-hot-backup@1.timer
+fleetctl start neo4j-hot-backup@1.timer
 ```
 
 - Once started, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
