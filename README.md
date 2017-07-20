@@ -8,35 +8,34 @@ If you wish to build locally:
 - Go app: `go build`
 - Docker build: `docker build -t coco/neo4j-hot-backup .`
 
-### Running
-
-To backup
+### Performing a backup
 
     docker run --rm \
-    --env AWS_ACCESS_KEY_ID=<AWS ACCESS KEY> \
-    --env AWS_SECRET_ACCESS_KEY=<AWS SECRET KEY> \
+    --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
+    --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
     --env S3_BUCKET=com.ft.coco-neo4j-backup \
-    --env S3_DIR=<ENVIRONMENT TAG> \
-    -v <backup folder>:/backup \
+    --env S3_DIR=$(/usr/bin/etcdctl get /ft/config/environment_tag) \
+    -v /vol/neo4j/data/databases/graph.db:/backup \
     coco/neo4j-hot-backup
 
-To restore
+### Performing a restore
+- Make sure that the database has been shut down before moving/restoring the data.
+- Before starting the restore, either delete or move the existing `/vol/neo4j/data/databases/graph.db` directory.
+- When restarting, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+
+Note that you should either delete or move the `/vol/neo4j/data/databases/graph.db` 
 
     docker run --rm \
-    --env AWS_ACCESS_KEY_ID=<AWS ACCESS KEY> \
-    --env AWS_SECRET_ACCESS_KEY=<AWS SECRET KEY> \
+    --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
+    --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
     --env S3_BUCKET=com.ft.coco-neo4j-backup \
-    --env S3_DIR=<ENVIRONMENT TAG> \
-    -v <backup folder>:/backup \
+    --env S3_DIR=<ENVIRONMENT_TAG> \
+    -v /vol/neo4j/data/databases/graph.db:/backup \
     coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
 
 - &lt;ENVIRONMENT TAG&gt; = The environment that you'll be restoring the backup from.
-- &lt;backup folder&gt; = The local folder that you'll be restoring to.
 - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
-
-### Restoring in the cluster
-- Make sure that the database has been shut down before moving/restoring the data.
-- When restarting, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
+- [Optional] you can change the target restore directory - standard location is `/vol/neo4j/data/databases/graph.db`.
 
 ### Testing for developers
 When making changes, follow the testing procedure below to ensure that the base functionality still work.
