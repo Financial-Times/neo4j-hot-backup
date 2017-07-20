@@ -31,7 +31,7 @@ fleetctl stop neo4j-hot-backup@1.timer
 ```
 
 - Before starting the restore, either move or delete the existing `/vol/neo4j/data/databases/graph.db` directory.
-- If you want to move and keep a copy of the current data, check there is sufficient disk space available.
+    - If you want to move and keep a copy of the current data, check there is sufficient disk space available.
 
 ```
 df -h
