@@ -42,9 +42,9 @@ sudo rm -rf /vol/neo4j/data/databases/graph.db
 ```
 
 - Start the restore using `neo4j-hot-backup`.
-- &lt;ENVIRONMENT TAG&gt;: The environment that you'll be restoring the backup from.
-- &lt;RESTORE_DIRECTORY&gt;: location to restore to - the standard location is `/vol/neo4j/data/databases/graph.db`
-- Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
+    - &lt;ENVIRONMENT TAG&gt;: The environment that you'll be restoring the backup from.
+    - &lt;RESTORE_DIRECTORY&gt;: location to restore to - the standard location is `/vol/neo4j/data/databases/graph.db`
+    - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
 
 ```
 docker run --rm \g
