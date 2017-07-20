@@ -23,8 +23,6 @@ If you wish to build locally:
 - Before starting the restore, either delete or move the existing `/vol/neo4j/data/databases/graph.db` directory.
 - When restarting, the indexes need to be rebuilt.  This can take a while and will look like it's stuck at `Initialising metrics...`
 
-Note that you should either delete or move the `/vol/neo4j/data/databases/graph.db` 
-
     docker run --rm \
     --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
     --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
