@@ -10,13 +10,17 @@ If you wish to build locally:
 
 ### Performing a backup
 
-    docker run --rm \
-    --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
-    --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
-    --env S3_BUCKET=com.ft.coco-neo4j-backup \
-    --env S3_DIR=$(/usr/bin/etcdctl get /ft/config/environment_tag) \
-    -v /vol/neo4j/data/databases/graph.db:/backup \
-    coco/neo4j-hot-backup
+- &lt;BACKUP_DIRECTORY&gt;: location to backup to - the standard location is `/vol/neo4j/data/databases/graph.db`
+
+```
+docker run --rm \
+--env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
+--env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
+--env S3_BUCKET=com.ft.coco-neo4j-backup \
+--env S3_DIR=$(/usr/bin/etcdctl get /ft/config/environment_tag) \
+-v <BACKUP_DIRECTORY>:/backup \
+coco/neo4j-hot-backup
+```
 
 ### Performing a restore
 - Make sure that the database has been shut down before moving/restoring the data.
@@ -25,10 +29,11 @@ If you wish to build locally:
 fleetctl stop neo4j@{1..3}.service
 ```
 
-- Before starting the restore, either delete or move the existing `/vol/neo4j/data/databases/graph.db` directory.
-- Note that for large databases, there may not be enough disk space to move the existing data and also restore.
+- Before starting the restore, either move or delete the existing `/vol/neo4j/data/databases/graph.db` directory.
+- If you want to move and keep a copy of the current data, check there is sufficient disk space available.
 
 ```
+df -h
 sudo mv /vol/neo4j/data/databases/graph.db /vol/neo4j/data/databases/graph.db.`date +%F`
 
 OR
@@ -37,17 +42,17 @@ sudo rm -rf /vol/neo4j/data/databases/graph.db
 ```
 
 - Start the restore using `neo4j-hot-backup`.
-- &lt;ENVIRONMENT TAG&gt; = The environment that you'll be restoring the backup from.
+- &lt;ENVIRONMENT TAG&gt;: The environment that you'll be restoring the backup from.
+- &lt;RESTORE_DIRECTORY&gt;: location to restore to - the standard location is `/vol/neo4j/data/databases/graph.db`
 - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
-- [Optional] you can change the target restore directory - standard location is `/vol/neo4j/data/databases/graph.db`.
 
 ```
-docker run --rm \
+docker run --rm \g
 --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
 --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
 --env S3_BUCKET=com.ft.coco-neo4j-backup \
 --env S3_DIR=<ENVIRONMENT_TAG> \
--v /vol/neo4j/data/databases/graph.db:/backup \
+-v <RESTORE_DIRECTORY>:/backup \
 coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
 ```
 
