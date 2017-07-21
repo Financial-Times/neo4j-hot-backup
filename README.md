@@ -30,7 +30,7 @@ fleetctl stop neo4j@{1..3}.service
 fleetctl stop neo4j-hot-backup@1.timer
 ```
 
-- Before starting the restore, either move or delete the existing `/vol/neo4j/data/databases/graph.db` directory.
+- Before starting the restore, either move or delete the existing `/vol/neo4j/data/databases/graph.db` directory **on all members of the cluster**.
     - If you want to move and keep a copy of the current data, check there is sufficient disk space available.
 
 ```
@@ -42,10 +42,10 @@ OR
 sudo rm -rf /vol/neo4j/data/databases/graph.db
 ```
 
-- Start the restore using `neo4j-hot-backup`.
+- Start the restore using `neo4j-hot-backup` **on all members of the cluster**.
     - &lt;ENVIRONMENT TAG&gt;: The environment that you'll be restoring the backup from.
     - &lt;RESTORE_DIRECTORY&gt;: location to restore to - the standard location is `/vol/neo4j/data/databases/graph.db`
-    - Date (2016-09-23T14-30-11): The timestamp of the backup to restore.
+    - Date (2016-09-23T14-30-11): The timestamp of the backup to restore. You must restore the same backup on all members of the cluster.
 
 ```
 docker run --rm \g
