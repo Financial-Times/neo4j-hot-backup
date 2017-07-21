@@ -48,7 +48,7 @@ sudo rm -rf /vol/neo4j/data/databases/graph.db
     - Date (2016-09-23T14-30-11): The timestamp of the backup to restore. You must restore the same backup on all members of the cluster.
 
 ```
-docker run --rm \g
+docker run --rm \
 --env AWS_ACCESS_KEY_ID=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_access_key_id) \
 --env AWS_SECRET_ACCESS_KEY=$(/usr/bin/etcdctl get /ft/_credentials/aws/aws_secret_access_key) \
 --env S3_BUCKET=com.ft.coco-neo4j-backup \
