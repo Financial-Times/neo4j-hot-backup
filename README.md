@@ -57,6 +57,11 @@ docker run --rm \
 coco/neo4j-hot-backup ./neo4j-hot-backup restore 2016-09-23T14-30-11
 ```
 
+- Delete the cluster state directory **on all members of the cluster**:
+```
+sudo rm -rf /vol/neo4j/data/cluster-state
+```
+
 - Start neo4j back up:
 
 ```
